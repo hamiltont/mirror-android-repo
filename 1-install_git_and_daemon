@@ -1,0 +1,103 @@
+Walks through installing Git and the Git Daemon
+
+NOTE: This was done on a server running Ubuntu 10.04, your mileage may vary
+
+Trackbacks:
+	https://help.ubuntu.com/community/Git
+	http://scie.nti.st/2007/11/14/hosting-git-repositories-
+		the-easy-and-secure-way
+
+Install git-core, which contains git and the git daemon
+	$ sudo apt-get install git-core
+
+Setup a git user account
+	$ sudo adduser --system --shell /bin/sh --gecos 'GIT Version Control User' --group --disabled-password --home /home/git git
+
+Configure the daemon
+	$ sudo vim /etc/init.d/git-daemon
+
+and paste the following:
+	# Taken from here: http://pastie.org/227647
+
+	PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+	NAME=git-daemon
+	PIDFILE=/var/run/$NAME.pid
+	DESC="the git daemon"
+	DAEMON=/usr/lib/git-core/git-daemon
+	DAEMON_OPTS="--base-path=/home/git/repositories --export-all --verbose --syslog --detach --pid-file=$PIDFILE --user=git --group=nogroup"
+
+	test -x $DAEMON || exit 0
+
+	[ -r /etc/default/git-daemon ] && . /etc/default/git-daemon
+
+	. /lib/lsb/init-functions
+
+	start_git() {
+	  start-stop-daemon --start --quiet --pidfile $PIDFILE \
+	    --startas $DAEMON -- $DAEMON_OPTS
+	}
+
+	stop_git() {
+	  start-stop-daemon --stop --quiet --pidfile $PIDFILE
+	  rm -f $PIDFILE
+	}
+
+	status_git() {
+	  start-stop-daemon --stop --test --quiet --pidfile $PIDFILE >/dev/null 2>&1
+	}
+
+	case "$1" in
+	  start)
+	  log_begin_msg "Starting $DESC"
+	  start_git
+	  log_end_msg 0
+	  ;;
+	  stop)
+	  log_begin_msg "Stopping $DESC"
+	  stop_git
+	  log_end_msg 0
+	  ;;
+	  status)
+	  log_begin_msg "Testing $DESC: "
+	  if status_git
+	  then
+	    log_success_msg "Running"
+	    exit 0
+	  else
+	    log_failure_msg "Not running"
+	    exit 1
+	  fi
+	  ;;
+	  restart|force-reload)
+	  log_begin_msg "Restarting $DESC"
+	  stop_git
+	  sleep 1
+	  start_git
+	  log_end_msg 0
+	  ;;
+	  *)
+	  echo "Usage: $0 {start|stop|restart|force-reload|status}" >&2
+	  exit 1
+	  ;;
+	esac
+
+	exit 0
+
+
+Make the git-daemon script executable, add it to the list of startup items, 
+and start it
+	$ sudo chmod a+x /etc/init.d/git-daemon
+	$ sudo update-rc.d git-daemon defaults
+	$ sudo service git-daemon start
+
+Ensure that the service is started
+	$ service git-daemon status
+ 	 * Testing the git daemon: 
+ 	 * Running
+	$ sudo netstat -an | grep 9418
+	 tcp        0      0 0.0.0.0:9418            0.0.0.0:*               LISTEN     
+	 tcp6       0      0 :::9418                 :::*                    LISTEN     
+
+If there were no problems up to here, then the git-daemon is listening on the server. I didn't 
+have any problems with firewalls blocking access to that, so perhaps someone with experience 
+ensuring that firewalls are not an issue can add to the guide here. 

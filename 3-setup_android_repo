@@ -1,0 +1,57 @@
+Details setting up a mirror of the AOSP
+
+Trackbacks:
+	http://gregmeiste.com/post/3842942731/mirror-android-repositories-on-a-local-server
+	http://elinux.org/Android_Kernel_Download
+
+We want to do all of this as the user 'git' so that 'git' will own
+the repository files
+
+Setup the folder structure. Commands used will result in all git
+repositories needing to be placed somewhere inside the 
+/home/git/repositories folder. We create an android folder that will
+be used to hold all of the android-specific git repositories
+	$ cd ~git
+	$ sudo -H -u git mkdir repositories
+	$ cd repositories
+	$ sudo -H -u git mkdir android
+	$ cd android
+
+Setup repo 
+Note: This assumes that repo is installed and in your path
+Note: If you server is not already plugged into a hardwire, that would be a good idea before 
+      you run repo sync. That command will download a few Gb of data. 
+	$ sudo -H -u git repo init --mirror -u git://android.git.kernel.org/platform/manifest.git
+	$ sudo -H -u git repo sync
+
+Modify the Android manifest
+When users create clones of the code from your server, your server address should be used as 
+the remote URL in git. The remote URL value is pulled from the manifest.git used to initialize
+the Android repo (via the repo command) on their local machine, so we need to modify the 
+manifest.git and change the default URL from korg to our server address
+Note: This all needs to be run from the client computer
+	$ git clone git@yourserver.com:android/platform/manifest.git
+	$ cd manifest
+	$ git checkout -b local
+
+Open the default.xml file, add your server as a 'remote', and set it as the default remote
+e.g. 
+	  <remote  name="korg"
+		   fetch="git://android.git.kernel.org/"
+		   review="review.source.android.com" />
+	  <remote  name="myserver"
+		   fetch="git@myserver.com:android/" />
+	  <default revision="master"
+		   remote="myserver" />
+
+Note that the fetch url is not just git@myserver, we have added the ':android/' so that 
+the name of each project, after being appended to the remote url, will read similarly to
+'git@myserver.com:android/platform/bionic', which is the proper URL for our server 
+configuration (where all of the android-specific git's are stored under the android folder). 
+
+Save the file and commit the change
+	$ git commit -a -m "Using local mirror"
+	$ git push origin local
+
+(Optional) Delete your clone of manifest.git
+

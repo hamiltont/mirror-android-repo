@@ -1,0 +1,68 @@
+Instructions on Configuring Gitolite to Give Access to the Android Repo
+
+Trackbacks:
+	http://sitaramc.github.com/gitolite/doc/1-INSTALL.html
+	http://groups.google.com/group/repo-discuss/browse_thread/thread/a970482df8d5574e
+
+At this stage, all of the Android git repositories are on the server, but are not 
+accessible because Gitolite is controlling git repository access, and gitolite has 
+not been told to grant access to any of the android repositories. 
+
+All commands in this file should be executed on the client computer. 
+
+Checkout the gitolite configuration
+	$ git clone git@server:gitolite-admin
+	$ cd gitolite-admin
+
+Note: If you want to add more users, now is a good time to add their .pub keys
+to gitolite - just drop them into the keydir
+
+Retrieve a list of Android projects
+	$ ssh -p 29418 review.source.android.com gerrit ls-projects > projects.in
+
+Run a small bit of Python to format the list properly for Gitolite's configuration
+	$ python
+	Python 2.6.5 (r265:79359, Mar 24 2010, 01:32:55) 
+	[GCC 4.0.1 (Apple Inc. build 5493)] on darwin
+	Type "help", "copyright", "credits" or "license" for more information.
+	>>> infile = file('projects.in', 'r')
+	>>> outfile = file('android.conf','w')
+	>>> for line in infile:
+	...     outfile.write('@android = android/' + line)
+	... 
+	>>> infile.close()
+	>>> outfile.close()
+	>>> quit()
+
+Now remove the extra file, and ensure the configuration file is in the conf/ folder
+	$ rm projects.in
+	$ mv android.conf conf/
+
+Edit the girolite-conf file to include the android.conf, and grant access to some users. 
+# Creates the @android repository group
+	include	"android.conf"
+
+	repo    gitolite-admin
+		RW+     =   hamiltont
+
+	repo    testing
+		RW+     =   @all
+
+	repo	@android
+		RW      =   @all
+
+	repo    @android
+		RW+     =   hamiltont
+
+
+Note that there are some inherent frustrations with this approach. First, gerrit 
+ls-projects knows about a large group of 'temporary' projects. This isn't a problem
+so much as an annoyance, because gitolite will simply initialize an empty Git 
+repo for every non-existant Git project that is referenced in the configuration.
+Secondly, and perhaps more of a problem, is that the initial repo --mirror command
+seems to skip a number of the projects listed in the manifest file, such as some of 
+the kernel/* projects. I'd assume there is a way to get around this, however the 
+method listed here was good enough for my purposes. Note that these 'missing' 
+projects do not seem to be critical to modifying Android - I was able to build and 
+run an emulator using this method. I have not tried it on a real device, however, so 
+these directions may be updated if that fails. 

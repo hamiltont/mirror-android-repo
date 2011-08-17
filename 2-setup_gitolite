@@ -1,0 +1,25 @@
+Covers Installing and Configuring Gitolite
+
+Trackbacks:
+	https://github.com/sitaramc/gitolite
+
+Copy your public key to some location, naming it <somename>.pub
+If you have an account on the server for your user, then you likely already
+have your public key available in ~/.ssh/authorized_keys or ~/.ssh/id_rsa.pub. 
+Otherwise, you'll have to copy it over using something like scp
+	$ cp ~/.ssh/id_rsa.pub /tmp/hamiltont.pub
+
+Download gitolite, inital configuration
+	$ cd ~
+	$ git clone git://github.com/sitaramc/gitolite
+	$ cd gitolite
+	$ sudo src/gl-system-install
+
+Switch to the git user to finish the configuration
+Note: You will need the password for the 'git' user, or you will need to reset
+it with 'passwd'
+	$ su - git
+	$ gl-setup /tmp/hamiltont.pub (replace with your .pub file)
+
+That's it for now - once we configure repo we will revisit Gitolite to add
+the Android projects

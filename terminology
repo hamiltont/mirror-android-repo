@@ -1,0 +1,34 @@
+This file covers some terminology you will find in searching for how to 
+do this, and some of the basic concepts. 
+
+
+AOSP - Andorid Open Source Project. Essentially the entire, unmodified 
+	Android source code. Does not include any HTC Sense user interface or
+	any other modifications to vanilla Android. 
+
+korg - I believe this is short for kernel.org, which in the context of the 
+	AOSP is itself short for android.git.kernel.org. So if someone 
+	mentions korg, they are referring to android.git.kernel.org. 
+
+repo - Google-written software that is used by end users to help manage
+	the complexity of dealing with many individual git repositories. 
+	For the uniniated, Android source code is separated into multiple
+	individual git projects - see http://google-opensource.blogspot.
+	com/2008/11/gerrit-and-repo-android-source.html for more info. 
+
+gitolite - Software that controlls access to git repositories. Useful for 
+	1) ensuring that only authorized individuals can have read / 
+	write access to your git repositories, not just anyone that happens
+	to have your server URL and 2) controlling which users have 
+	access to which Android git repositories
+
+gitosis - Similar to gitolite, although this seems to be a deprecated 
+	project. 
+
+gerrit - Another software that controlls access to git repositories. Useful
+	if your group needs to ensure that all code that enters the 
+	'master' repository goes through a review process. Doesn't stop any
+	distributed revison control features - users can still share code, 
+	cherry pick, etc - gerrit controls access to it's own repository
+	to ensure that code being entered into its repo has passed 
+	review/verification. 

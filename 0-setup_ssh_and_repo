@@ -1,0 +1,9 @@
+
+There's not much instrucation here, you should be able to google 
+setting up ssh and installing the repo command on your serve
+
+To configure the server, you will need 
+ - a server computer
+ - a client computer 
+ - a ssh public/private keypair
+
