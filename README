@@ -1,0 +1,14 @@
+This project contains a walkthrough of mirroring the entire Android Open
+Source Project (AOSP) and hosting it on a private server. The resulting 
+server can be used as the 'master' repository for a group working on 
+modifying Android to a common goal, with each member of the group being
+able to use the standard 'repo' and 'git' commands to interact with
+the server. 
+
+
+
+
+CONTRIBUTORS:
+ - Hamilton Turner (hamiltont@gmail.com)
+	Initial writeup covering setup of git, gitolite, repo mirror and 
+	interaction with the server
