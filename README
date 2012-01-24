@@ -6,8 +6,6 @@ able to use the standard 'repo' and 'git' commands to interact with
 the server. 
 
 
-
-
 CONTRIBUTORS:
  - Hamilton Turner (hamiltont@gmail.com)
 	Initial writeup covering setup of git, gitolite, repo mirror and 
